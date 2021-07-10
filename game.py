@@ -5,6 +5,7 @@ import time
 pygame.init()
 
 size = width, height = 500, 500
+base_path = os.path.dirname(__file__)
 
 screen = pygame.display.set_mode(size)
 speed = [0, 0]
@@ -30,8 +31,11 @@ class MainCharacter(pygame.sprite.Sprite):
         self.defaultScore -= 1
         if (self.defaultScore <= 0):
             sys.exit()
+        
     def greenupdate(self):
         self.defaultScore += 1
+        if (self.defaultScore >= 20):
+            sys.exit()
 
 class Redbead(pygame.sprite.Sprite):
     def __init__(self):
@@ -84,10 +88,6 @@ for i in range(0, 2):
 clock = pygame.time.Clock()
 while 1:
     clock.tick(60)
-    screen.fill(0, 0, 0)
-    badSprites.draw(screen)
-    goodSprites.draw(screen)
-    main_sprite.draw(screen)
 
     key = pygame.key.get_pressed()
 
@@ -115,5 +115,24 @@ while 1:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
+
+    colliding_red = pygame.sprite.spritecollideany(main, badSprites)
+    colliding_green = pygame.sprite.spritecollideany(main, goodSprites)
+
+    if (colliding_red != None):
+        main.redupdate()
+    if (colliding_green != None):
+        main.greenupdate()
     
-    pygame.display.update()
+    print(pygame.time.get_ticks())
+    screen.fill((0, 0, 0))
+    badSprites.draw(screen)
+    goodSprites.draw(screen)
+    main_sprite.draw(screen)
+
+    myFont = pygame.font.SysFont("Times New Roman", 18)
+    score_status = myFont.render(str(main.defaultScore), True, (250, 250, 250))
+    screen.blit(score_status, (300, 30))
+
+    pygame.display.flip()
+    
